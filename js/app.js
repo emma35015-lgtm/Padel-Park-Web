@@ -1,121 +1,122 @@
 'use strict';
 
-// ── Storage helpers ──────────────────────────────────
-const STORAGE_KEY = 'padelpark_members';
+var STORAGE_KEY = 'padelpark_members';
 
+// ── Storage ───────────────────────────────────────────
 function loadMembers() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
     return [];
   }
 }
 
 function saveMember(member) {
-  const members = loadMembers();
+  var members = loadMembers();
   members.push(member);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
 }
 
-// ── ID generator ─────────────────────────────────────
+// ── ID ────────────────────────────────────────────────
 function generateId() {
-  const members = loadMembers();
-  // Next sequential number padded to 6 digits
-  const next = (members.length + 1).toString().padStart(6, '0');
-  return 'PP-' + next;
+  var members = loadMembers();
+  var num = String(members.length + 1);
+  while (num.length < 6) { num = '0' + num; }
+  return 'PP-' + num;
 }
 
-// ── Date formatter ───────────────────────────────────
+// ── Date ──────────────────────────────────────────────
 function formatDate(isoDate) {
-  const [y, m, d] = isoDate.split('-');
-  return `${d}/${m}/${y}`;
+  var parts = isoDate.split('-');
+  return parts[2] + '/' + parts[1] + '/' + parts[0];
 }
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// ── QR generator ─────────────────────────────────────
+// ── QR via imagen (sin librería JS) ───────────────────
 function generateQR(text) {
-  const container = document.getElementById('qr-code');
+  var container = document.getElementById('qr-code');
   container.innerHTML = '';
-
-  if (typeof QRCode === 'undefined') {
-    // CDN failed — show a plain text fallback so the card still displays
-    container.style.cssText = 'font-size:8px;color:#0d1b4b;word-break:break-all;padding:2px;text-align:center;';
-    container.textContent = text;
-    return;
-  }
-
-  try {
-    new QRCode(container, {
-      text,
-      width: 72,
-      height: 72,
-      colorDark: '#0d1b4b',
-      colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M,
-    });
-  } catch (e) {
-    container.textContent = '';
-  }
+  var img = document.createElement('img');
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.borderRadius = '4px';
+  img.alt = 'QR Socio';
+  img.src = 'https://api.qrserver.com/v1/create-qr-code/'
+    + '?size=144x144&margin=2&color=0d1b4b&bgcolor=ffffff'
+    + '&data=' + encodeURIComponent(text);
+  container.appendChild(img);
 }
 
-// ── Section navigation ───────────────────────────────
+// ── Navegación ────────────────────────────────────────
 function showSection(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
+  var sections = document.querySelectorAll('.section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active');
+  }
+  var target = document.getElementById(id);
+  if (target) {
+    target.classList.add('active');
+  }
   window.scrollTo(0, 0);
 }
 
-// ── Register handler ─────────────────────────────────
-function handleRegister(event) {
-  event.preventDefault();
-
-  const name  = document.getElementById('name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-
-  if (!name || !phone) return;
-
-  const id   = generateId();
-  const date = todayISO();
-
-  const member = { id, name, phone, date };
-  saveMember(member);
-  showSection('card-view');  // muestra la sección primero
-  renderCard(member);        // luego llena los datos y el QR
-}
-
-// ── Card renderer ─────────────────────────────────────
+// ── Render tarjeta ────────────────────────────────────
 function renderCard(member) {
   document.getElementById('card-name').textContent  = member.name;
   document.getElementById('card-phone').textContent = member.phone;
   document.getElementById('card-id').textContent    = member.id;
   document.getElementById('card-date').textContent  = formatDate(member.date);
 
-  // QR encodes the member data as plain text
-  const qrPayload = [
-    'PADEL PARK GRAN JARDÍN',
-    'Socio: ' + member.id,
-    'Nombre: ' + member.name,
-    'Tel: ' + member.phone,
-    'Desde: ' + formatDate(member.date),
-  ].join('\n');
+  var qrText = 'PADEL PARK GRAN JARDIN'
+    + '\nSocio: '  + member.id
+    + '\nNombre: ' + member.name
+    + '\nTel: '    + member.phone
+    + '\nDesde: '  + formatDate(member.date);
 
-  generateQR(qrPayload);
+  generateQR(qrText);
 }
 
-// ── Init ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+// ── Submit formulario ─────────────────────────────────
+function handleRegister(event) {
+  event.preventDefault();
+
+  var nameEl  = document.getElementById('name');
+  var phoneEl = document.getElementById('phone');
+
+  if (!nameEl || !phoneEl) return;
+
+  var name  = nameEl.value.trim();
+  var phone = phoneEl.value.trim();
+
+  if (!name || !phone) return;
+
+  var member = {
+    id:    generateId(),
+    name:  name,
+    phone: phone,
+    date:  todayISO()
+  };
+
+  saveMember(member);
+  showSection('card-view');
+  renderCard(member);
+}
+
+// ── Init ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
   showSection('landing');
 
-  // Reset form when going back from card view
-  document.getElementById('register-form')?.addEventListener('reset', () => {
-    showSection('landing');
-  });
+  var form = document.getElementById('register-form');
+  if (form) {
+    form.addEventListener('reset', function () {
+      showSection('landing');
+    });
+  }
 });
 
-// Expose globals for inline event handlers
 window.showSection    = showSection;
 window.handleRegister = handleRegister;
