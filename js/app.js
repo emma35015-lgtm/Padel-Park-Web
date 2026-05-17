@@ -158,13 +158,23 @@ function handleRegister(event) {
 }
 
 // ── Init ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+function init() {
   showSection('landing');
+
   var form = document.getElementById('register-form');
   if (form) {
-    form.addEventListener('reset', function() { showSection('landing'); });
+    // Attach submit handler programmatically — more reliable than inline onsubmit
+    form.addEventListener('submit', handleRegister);
+    form.addEventListener('reset',  function() { showSection('landing'); });
   }
-});
+}
+
+// Run immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
 window.showSection    = showSection;
 window.handleRegister = handleRegister;

@@ -357,13 +357,19 @@ function showToast(msg) {
 }
 
 // ── Init ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
+function init() {
   allMembers = loadMembers();
   allVisits  = loadVisits();
   updateStats();
   renderMembersTable(allMembers);
   renderVisitsTable();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
 window.switchTab         = switchTab;
 window.filterTable       = filterTable;
