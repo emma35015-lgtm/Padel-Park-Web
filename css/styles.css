@@ -475,6 +475,47 @@ body.admin-body { display: block; padding: 0; }
   border: 1px solid rgba(220,53,69,.35);
   color: #ff6b7a;
 }
+.scan-result.promo {
+  background: rgba(251,191,36,.12);
+  border: 2px solid rgba(251,191,36,.6);
+  color: #92400e;
+  font-size: 1rem;
+}
+
+/* ── Members table extras ───────────────────────────── */
+.promo-badge {
+  display: inline-block;
+  background: var(--lime);
+  color: var(--navy);
+  font-size: .62rem;
+  font-weight: 800;
+  padding: .15rem .45rem;
+  border-radius: 20px;
+  letter-spacing: .04em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.visit-count {
+  font-weight: 700;
+  color: var(--lime);
+}
+.btn-delete {
+  background: none;
+  border: 1px solid rgba(255,100,100,.3);
+  color: rgba(255,120,120,.7);
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .3rem .7rem;
+  border-radius: 7px;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn-delete:hover {
+  background: rgba(255,100,100,.12);
+  color: #ff6b7a;
+  border-color: rgba(255,100,100,.5);
+}
 
 /* ── Toast notification ─────────────────────────────── */
 .toast {

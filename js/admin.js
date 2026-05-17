@@ -85,19 +85,35 @@ function updateStats() {
     allVisits.filter(function(v) { return v.date === today; }).length;
 }
 
+// ── Visit count per member ────────────────────────────
+function countVisits(memberId) {
+  var n = 0;
+  for (var i = 0; i < allVisits.length; i++) {
+    if (allVisits[i].memberId === memberId) n++;
+  }
+  return n;
+}
+
 // ── Members table ─────────────────────────────────────
 function renderMembersTable(members) {
   var tbody = document.getElementById('members-tbody');
   if (!members.length) {
-    tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No hay socios registrados.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay socios registrados.</td></tr>';
     return;
   }
   tbody.innerHTML = members.slice().reverse().map(function(m) {
+    var visits = countVisits(m.id);
+    var promo  = visits > 0 && visits % 5 === 0;
     return '<tr>'
       + '<td><span class="badge-id">' + escHtml(m.id) + '</span></td>'
       + '<td>' + escHtml(m.name) + '</td>'
       + '<td>' + escHtml(m.phone) + '</td>'
       + '<td>' + (m.date ? formatDate(m.date) : '—') + '</td>'
+      + '<td style="text-align:center">'
+      +   '<span class="visit-count">' + visits + '</span>'
+      +   (promo ? ' <span class="promo-badge">★ Promo</span>' : '')
+      + '</td>'
+      + '<td><button class="btn-delete" onclick="deleteMember(\'' + escHtml(m.id) + '\')">Eliminar</button></td>'
       + '</tr>';
   }).join('');
 }
@@ -110,6 +126,18 @@ function filterTable(q) {
         || m.phone.toLowerCase().indexOf(low) >= 0
         || m.id.toLowerCase().indexOf(low) >= 0;
   }));
+}
+
+// ── Delete member ─────────────────────────────────────
+function deleteMember(id) {
+  var member = findMember(id);
+  var name   = member ? member.name : id;
+  if (!confirm('¿Eliminar al socio ' + name + ' (' + id + ')?\nEsta acción no se puede deshacer.')) return;
+  allMembers = allMembers.filter(function(m) { return m.id !== id; });
+  localStorage.setItem(MEMBERS_KEY, JSON.stringify(allMembers));
+  updateStats();
+  renderMembersTable(allMembers);
+  showToast('Socio eliminado ✓');
 }
 
 // ── Visits table ──────────────────────────────────────
@@ -231,11 +259,20 @@ function onScanSuccess(text) {
   allVisits = saveVisit(visit);
   updateStats();
   renderVisitsTable();
+  renderMembersTable(allMembers);
 
-  showScanResult('success',
-    '¡Visita registrada!',
-    member.name + ' (' + member.id + ')\n' + formatDate(visit.date) + ' a las ' + visit.time
-  );
+  var totalVisits = countVisits(member.id);
+  if (totalVisits > 0 && totalVisits % 5 === 0) {
+    showScanResult('promo',
+      '🎉 ¡APLICA PROMOCIÓN!',
+      member.name + ' lleva ' + totalVisits + ' visitas.\nAplica descuento o beneficio especial.'
+    );
+  } else {
+    showScanResult('success',
+      '✓ Visita registrada',
+      member.name + ' (' + member.id + ')\n' + formatDate(visit.date) + ' — ' + visit.time
+    );
+  }
 }
 
 function setCooldown(ms) {
@@ -333,3 +370,4 @@ window.filterTable       = filterTable;
 window.toggleScanner     = toggleScanner;
 window.exportMembersCSV  = exportMembersCSV;
 window.exportVisitsCSV   = exportVisitsCSV;
+window.deleteMember      = deleteMember;
