@@ -5,7 +5,7 @@
 //  3. Copia la URL /exec y pégala en js/admin.js como SHEETS_URL
 // ═══════════════════════════════════════════════════════
 
-var SS_ID = 'REPLACE_WITH_YOUR_SPREADSHEET_ID';
+var SS_ID = '1-IHYl9JnoOSEKJqSIPq5mOyhNl8l6MhRIA5XkfAgpCk';
 
 function getSheets() {
   var ss = SpreadsheetApp.openById(SS_ID);
