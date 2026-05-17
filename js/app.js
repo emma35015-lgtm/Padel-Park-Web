@@ -36,20 +36,29 @@ function todayISO() {
 }
 
 // ── QR generator ─────────────────────────────────────
-let qrInstance = null;
-
 function generateQR(text) {
   const container = document.getElementById('qr-code');
   container.innerHTML = '';
 
-  qrInstance = new QRCode(container, {
-    text,
-    width: 72,
-    height: 72,
-    colorDark: '#0d1b4b',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M,
-  });
+  if (typeof QRCode === 'undefined') {
+    // CDN failed — show a plain text fallback so the card still displays
+    container.style.cssText = 'font-size:8px;color:#0d1b4b;word-break:break-all;padding:2px;text-align:center;';
+    container.textContent = text;
+    return;
+  }
+
+  try {
+    new QRCode(container, {
+      text,
+      width: 72,
+      height: 72,
+      colorDark: '#0d1b4b',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+  } catch (e) {
+    container.textContent = '';
+  }
 }
 
 // ── Section navigation ───────────────────────────────
@@ -74,8 +83,8 @@ function handleRegister(event) {
 
   const member = { id, name, phone, date };
   saveMember(member);
-  renderCard(member);
-  showSection('card-view');
+  showSection('card-view');  // muestra la sección primero
+  renderCard(member);        // luego llena los datos y el QR
 }
 
 // ── Card renderer ─────────────────────────────────────
