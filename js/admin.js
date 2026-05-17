@@ -1,7 +1,7 @@
 'use strict';
 
-var MEMBERS_KEY = 'padelpark_members';
-var VISITS_KEY  = 'padelpark_visits';
+// ► Pega aquí la URL de tu Web App de Google Apps Script (termina en /exec)
+var SHEETS_URL = '';
 
 var allMembers    = [];
 var allVisits     = [];
@@ -10,22 +10,42 @@ var scanCooldown  = false;
 var videoStream   = null;
 var animFrameId   = null;
 
-// ── Storage ───────────────────────────────────────────
-function loadMembers() {
-  try { return JSON.parse(localStorage.getItem(MEMBERS_KEY)) || []; }
-  catch (e) { return []; }
+// ── Sheets API ────────────────────────────────────────
+function loadFromSheets() {
+  if (!SHEETS_URL) { showConfigWarning(); return; }
+
+  fetch(SHEETS_URL + '?action=all')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      allMembers = data.members || [];
+      allVisits  = data.visits  || [];
+      updateStats();
+      renderMembersTable(allMembers);
+      renderVisitsTable();
+    })
+    .catch(function() {
+      showToast('Error al cargar datos. Verifica la URL y la conexión.');
+    });
 }
 
-function loadVisits() {
-  try { return JSON.parse(localStorage.getItem(VISITS_KEY)) || []; }
-  catch (e) { return []; }
+function postToSheets(payload, callback) {
+  if (!SHEETS_URL) { showConfigWarning(); return; }
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { if (callback) callback(null, data); })
+  .catch(function(err) { if (callback) callback(err, null); });
 }
 
-function saveVisit(visit) {
-  var visits = loadVisits();
-  visits.push(visit);
-  localStorage.setItem(VISITS_KEY, JSON.stringify(visits));
-  return visits;
+function showConfigWarning() {
+  var msg = '<tr><td colspan="6" class="empty-state">⚠️ Configura SHEETS_URL en js/admin.js</td></tr>';
+  document.getElementById('members-tbody').innerHTML = msg;
+  document.getElementById('visits-tbody').innerHTML  =
+    msg.replace('colspan="6"', 'colspan="5"');
 }
 
 // ── Helpers ───────────────────────────────────────────
@@ -133,11 +153,14 @@ function deleteMember(id) {
   var member = findMember(id);
   var name   = member ? member.name : id;
   if (!confirm('¿Eliminar al socio ' + name + ' (' + id + ')?\nEsta acción no se puede deshacer.')) return;
-  allMembers = allMembers.filter(function(m) { return m.id !== id; });
-  localStorage.setItem(MEMBERS_KEY, JSON.stringify(allMembers));
-  updateStats();
-  renderMembersTable(allMembers);
-  showToast('Socio eliminado ✓');
+
+  postToSheets({ action: 'delete', memberId: id }, function(err) {
+    if (err) { showToast('Error al eliminar. Intenta de nuevo.'); return; }
+    allMembers = allMembers.filter(function(m) { return m.id !== id; });
+    updateStats();
+    renderMembersTable(allMembers);
+    showToast('Socio eliminado ✓');
+  });
 }
 
 // ── Visits table ──────────────────────────────────────
@@ -234,7 +257,7 @@ function stopScanner() {
 
 function onScanSuccess(text) {
   if (scanCooldown) return;
-  setCooldown(3000);
+  setCooldown(5000);
 
   var parsed = parseQR(text);
   if (!parsed) {
@@ -242,47 +265,48 @@ function onScanSuccess(text) {
     return;
   }
 
-  // Register member on first scan if not yet in the system
-  var member  = findMember(parsed.id);
-  var isNew   = false;
-  if (!member) {
-    member = { id: parsed.id, name: parsed.name, phone: parsed.phone, date: parsed.regDate };
-    allMembers.push(member);
-    localStorage.setItem(MEMBERS_KEY, JSON.stringify(allMembers));
-    isNew = true;
-  }
+  showScanResult('success', '⏳ Guardando…', 'Registrando visita en Google Sheets…');
 
-  var visit = {
-    memberId:    member.id,
-    memberName:  member.name,
-    memberPhone: member.phone,
-    date: todayISO(),
-    time: nowTime()
+  var payload = {
+    action:      'scan',
+    memberId:    parsed.id,
+    memberName:  parsed.name,
+    memberPhone: parsed.phone || '',
+    memberDate:  parsed.regDate,
+    date:        todayISO(),
+    time:        nowTime()
   };
 
-  allVisits = saveVisit(visit);
-  updateStats();
-  renderVisitsTable();
-  renderMembersTable(allMembers);
+  postToSheets(payload, function(err, result) {
+    if (err || !result || !result.ok) {
+      showScanResult('error', 'Error de conexión',
+        'No se pudo guardar. Verifica la conexión a internet.');
+      return;
+    }
 
-  var totalVisits = countVisits(member.id);
+    // Update local cache
+    if (result.isNew) {
+      allMembers.push({ id: parsed.id, name: parsed.name,
+        phone: parsed.phone || '', date: parsed.regDate });
+    }
+    allVisits.push({ memberId: parsed.id, memberName: parsed.name,
+      memberPhone: parsed.phone || '', date: payload.date, time: payload.time });
 
-  if (isNew) {
-    showScanResult('success',
-      '✓ ¡Nuevo socio registrado!',
-      member.name + ' (' + member.id + ')\nPrimera visita: ' + formatDate(visit.date) + ' — ' + visit.time
-    );
-  } else if (totalVisits > 0 && totalVisits % 5 === 0) {
-    showScanResult('promo',
-      '🎉 ¡APLICA PROMOCIÓN!',
-      member.name + ' lleva ' + totalVisits + ' visitas.\nAplica descuento o beneficio especial.'
-    );
-  } else {
-    showScanResult('success',
-      '✓ Visita registrada',
-      member.name + ' (' + member.id + ')\n' + formatDate(visit.date) + ' — ' + visit.time
-    );
-  }
+    updateStats();
+    renderVisitsTable();
+    renderMembersTable(allMembers);
+
+    if (result.isNew) {
+      showScanResult('success', '✓ ¡Nuevo socio registrado!',
+        parsed.name + ' (' + parsed.id + ')\nPrimera visita: ' + formatDate(payload.date) + ' — ' + payload.time);
+    } else if (result.promo) {
+      showScanResult('promo', '🎉 ¡APLICA PROMOCIÓN!',
+        parsed.name + ' lleva ' + result.visitCount + ' visitas.\nAplica descuento o beneficio especial.');
+    } else {
+      showScanResult('success', '✓ Visita registrada',
+        parsed.name + ' (' + parsed.id + ')\n' + formatDate(payload.date) + ' — ' + payload.time);
+    }
+  });
 }
 
 function setCooldown(ms) {
@@ -290,7 +314,7 @@ function setCooldown(ms) {
   setTimeout(function() { scanCooldown = false; }, ms);
 }
 
-// Parse all member data from QR text
+// ── QR parser ─────────────────────────────────────────
 function parseQR(text) {
   if (text.indexOf('PADEL PARK') === -1) return null;
   var lines  = text.split('\n');
@@ -308,7 +332,6 @@ function parseQR(text) {
   return result;
 }
 
-// Convert DD/MM/YYYY → YYYY-MM-DD
 function ddmmToISO(str) {
   var p = str.split('/');
   if (p.length !== 3) return todayISO();
@@ -377,16 +400,13 @@ function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(function() { t.classList.remove('show'); }, 3000);
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
 }
 
 // ── Init ──────────────────────────────────────────────
 function init() {
-  allMembers = loadMembers();
-  allVisits  = loadVisits();
-  updateStats();
-  renderMembersTable(allMembers);
-  renderVisitsTable();
+  if (!SHEETS_URL) { showConfigWarning(); return; }
+  loadFromSheets();
 }
 
 if (document.readyState === 'loading') {
