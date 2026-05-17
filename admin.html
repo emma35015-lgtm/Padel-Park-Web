@@ -3,68 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin – Pádel Park</title>
+  <title>Admin – Padel Park Gran Jardín</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="js/admin.js" defer></script>
 </head>
 <body class="admin-body">
   <div class="admin-container">
+
     <!-- Header -->
     <div class="admin-header">
-      <div>
-        <h1 class="admin-title">Panel de Socios</h1>
-        <p class="admin-subtitle">Pádel Park Gran Jardín — Registro de miembros</p>
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <img src="assets/logo.png" alt="Padel Park" class="admin-logo"
+             onerror="this.src='assets/logo.svg'; this.onerror=null;" />
+        <div>
+          <h1 class="admin-title">Panel Admin</h1>
+          <p class="admin-subtitle">Padel Park Gran Jardín</p>
+        </div>
       </div>
-      <div style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
-        <button class="btn btn-primary" onclick="exportCSV()">
-          ↓ Exportar a Excel (CSV)
+      <a href="index.html" class="btn btn-outline">← Web principal</a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('tab-members')">Socios</button>
+      <button class="tab-btn" onclick="switchTab('tab-scanner')">Escanear QR</button>
+      <button class="tab-btn" onclick="switchTab('tab-visits')">Visitas</button>
+    </div>
+
+    <!-- ── TAB: SOCIOS ───────────────────────────── -->
+    <div id="tab-members" class="tab-panel active">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total socios</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-month">0</div>
+          <div class="stat-label">Este mes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-today-reg">0</div>
+          <div class="stat-label">Registros hoy</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:.75rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <input type="search" id="search-input" placeholder="Buscar por nombre, teléfono o N.º socio…"
+               oninput="filterTable(this.value)"
+               style="flex:1; min-width:200px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+                      border-radius:10px; padding:.75rem 1rem; font-size:1rem; color:#fff; outline:none;" />
+        <button class="btn btn-primary" onclick="exportMembersCSV()">↓ Exportar socios CSV</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>N.º Socio</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Fecha registro</th>
+            </tr>
+          </thead>
+          <tbody id="members-tbody">
+            <tr><td colspan="4" class="empty-state">Cargando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── TAB: ESCANEAR QR ──────────────────────── -->
+    <div id="tab-scanner" class="tab-panel">
+      <div class="scanner-wrapper">
+        <h2 class="scanner-title">Registrar visita</h2>
+        <p class="scanner-subtitle">
+          Apunta la cámara al QR de la tarjeta del socio para registrar su visita.
+        </p>
+
+        <div id="scan-result" class="scan-result hidden"></div>
+
+        <div id="qr-reader" class="qr-reader-box"></div>
+
+        <button id="scanner-btn" class="btn btn-primary" onclick="toggleScanner()"
+                style="width:100%; max-width:360px; margin-top:1rem;">
+          Iniciar cámara
         </button>
-        <a href="index.html" class="btn btn-outline">← Volver a la web</a>
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-total">0</div>
-        <div class="stat-label">Total socios</div>
+    <!-- ── TAB: VISITAS ──────────────────────────── -->
+    <div id="tab-visits" class="tab-panel">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div class="stats-row" style="margin:0; flex:1;">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-visits-total">0</div>
+            <div class="stat-label">Total visitas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-visits-today">0</div>
+            <div class="stat-label">Visitas hoy</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="exportVisitsCSV()">↓ Exportar visitas CSV</button>
       </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-month">0</div>
-        <div class="stat-label">Este mes</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-today">0</div>
-        <div class="stat-label">Hoy</div>
+
+      <div class="table-wrapper">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>N.º Socio</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+            </tr>
+          </thead>
+          <tbody id="visits-tbody">
+            <tr><td colspan="5" class="empty-state">No hay visitas registradas aún.</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <!-- Search -->
-    <div style="margin-bottom:1rem;">
-      <input type="search" id="search-input" placeholder="Buscar por nombre, teléfono o N.º socio…"
-             oninput="filterTable(this.value)"
-             style="width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
-                    border-radius:10px; padding:.75rem 1rem; font-size:1rem; color:#fff; outline:none;" />
-    </div>
-
-    <!-- Table -->
-    <div class="table-wrapper">
-      <table class="members-table">
-        <thead>
-          <tr>
-            <th>N.º Socio</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Fecha de registro</th>
-          </tr>
-        </thead>
-        <tbody id="members-tbody">
-          <tr>
-            <td colspan="4" class="empty-state">Cargando registros…</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
   <div class="toast" id="toast"></div>
