@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Pádel Park</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/admin.js" defer></script>
+</head>
+<body class="admin-body">
+  <div class="admin-container">
+    <!-- Header -->
+    <div class="admin-header">
+      <div>
+        <h1 class="admin-title">Panel de Socios</h1>
+        <p class="admin-subtitle">Pádel Park Gran Jardín — Registro de miembros</p>
+      </div>
+      <div style="display:flex; gap:.75rem; align-items:center; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="exportCSV()">
+          ↓ Exportar a Excel (CSV)
+        </button>
+        <a href="index.html" class="btn btn-outline">← Volver a la web</a>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Total socios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-month">0</div>
+        <div class="stat-label">Este mes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-today">0</div>
+        <div class="stat-label">Hoy</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div style="margin-bottom:1rem;">
+      <input type="search" id="search-input" placeholder="Buscar por nombre, teléfono o N.º socio…"
+             oninput="filterTable(this.value)"
+             style="width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+                    border-radius:10px; padding:.75rem 1rem; font-size:1rem; color:#fff; outline:none;" />
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th>N.º Socio</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Fecha de registro</th>
+          </tr>
+        </thead>
+        <tbody id="members-tbody">
+          <tr>
+            <td colspan="4" class="empty-state">Cargando registros…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</body>
+</html>

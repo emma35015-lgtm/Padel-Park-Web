@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260">
+  <!-- Background -->
+  <rect width="400" height="260" fill="#0d1b4b" rx="16"/>
+
+  <!-- Green arc (ball trajectory) -->
+  <path d="M 50 175 Q 200 30 360 100" stroke="#80e000" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- Padel ball dot on the 'P' -->
+  <circle cx="52" cy="175" r="14" fill="#80e000"/>
+  <path d="M 46 169 Q 52 175 46 181" stroke="#0d1b4b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 58 169 Q 52 175 58 181" stroke="#0d1b4b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+  <!-- PADEL PARK text -->
+  <text x="200" y="185" text-anchor="middle" font-family="Arial Black, Arial, sans-serif"
+        font-weight="900" font-size="68" fill="#ffffff" letter-spacing="4">PADEL PARK</text>
+
+  <!-- Gran Jardín subtitle -->
+  <text x="200" y="222" text-anchor="middle" font-family="Georgia, serif"
+        font-style="italic" font-size="28" fill="#80e000" letter-spacing="1">Gran Jardín</text>
+</svg>

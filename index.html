@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Padel Park Gran Jardín – Tarjeta de Socio</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <!-- ─── LANDING ───────────────────────────────────── -->
+  <section id="landing" class="section active">
+    <div class="hero">
+      <div class="hero-logo">
+        <img src="assets/logo.png" alt="Padel Park Gran Jardín" id="hero-logo-img"
+             onerror="this.src='assets/logo.svg'" />
+
+      </div>
+      <p class="hero-tagline">Tu club, tu tarjeta, tu ventaja.</p>
+      <button class="btn btn-primary btn-lg" onclick="showSection('register')">
+        &#9654; Obtener mi Tarjeta de Socio
+      </button>
+    </div>
+  </section>
+
+  <!-- ─── REGISTRO ──────────────────────────────────── -->
+  <section id="register" class="section">
+    <div class="form-container">
+      <button class="btn-back" onclick="showSection('landing')">← Volver</button>
+      <h2 class="form-title">Registro de Socio</h2>
+      <p class="form-subtitle">Completa tus datos y genera tu tarjeta.</p>
+
+      <form id="register-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="name">Nombre completo *</label>
+          <input type="text" id="name" name="name" placeholder="Ej. María García López"
+                 required maxlength="60" autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="phone">Teléfono / WhatsApp *</label>
+          <input type="tel" id="phone" name="phone" placeholder="Ej. 612 345 678"
+                 required maxlength="20" autocomplete="tel" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          Generar mi Tarjeta ✦
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ─── TARJETA ───────────────────────────────────── -->
+  <section id="card-view" class="section">
+    <div class="card-view-container">
+      <h2 class="card-view-title">¡Tu tarjeta está lista!</h2>
+      <p class="card-view-subtitle">Toma una captura de pantalla para guardarla.</p>
+
+      <!-- Tarjeta visual -->
+      <div class="loyalty-card" id="loyalty-card">
+        <div class="card-bg"></div>
+
+        <div class="card-header">
+          <img src="assets/logo.png" alt="Padel Park" class="card-logo"
+               onerror="this.src='assets/logo.svg'" />
+          <span class="card-brand">PADEL PARK</span>
+          <span class="card-label-socio">TARJETA DE SOCIO</span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-info">
+            <div class="card-field">
+              <span class="field-label">NOMBRE</span>
+              <span class="field-value" id="card-name">—</span>
+            </div>
+            <div class="card-field">
+              <span class="field-label">TELÉFONO</span>
+              <span class="field-value" id="card-phone">—</span>
+            </div>
+            <div class="card-field">
+              <span class="field-label">N.º SOCIO</span>
+              <span class="field-value field-id" id="card-id">—</span>
+            </div>
+            <div class="card-field">
+              <span class="field-label">MIEMBRO DESDE</span>
+              <span class="field-value" id="card-date">—</span>
+            </div>
+          </div>
+
+          <div class="card-qr">
+            <div id="qr-code"></div>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="card-chip"></span>
+          <span class="card-footer-text">Presenta esta tarjeta en recepción</span>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="card-actions">
+        <p class="screenshot-hint">
+          📸 Haz una captura de pantalla ahora para guardar tu tarjeta.
+        </p>
+        <button class="btn btn-secondary" onclick="showSection('register')">
+          Registrar otro socio
+        </button>
+        <button class="btn btn-outline" onclick="showSection('landing')">
+          Ir al inicio
+        </button>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
