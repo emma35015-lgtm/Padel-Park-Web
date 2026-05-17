@@ -485,11 +485,7 @@ body.admin-body { display: block; padding: 0; }
   overflow: hidden;
   border: 2px solid rgba(128,224,0,.25);
   background: rgba(0,0,0,.3);
-  min-height: 10px;
 }
-/* Override html5-qrcode default styles to match theme */
-.qr-reader-box video { border-radius: 14px; }
-#qr-reader__scan_region { border-radius: 14px; }
 
 .scan-result {
   width: 100%;

@@ -3,11 +3,12 @@
 var MEMBERS_KEY = 'padelpark_members';
 var VISITS_KEY  = 'padelpark_visits';
 
-var allMembers   = [];
-var allVisits    = [];
+var allMembers    = [];
+var allVisits     = [];
 var scannerActive = false;
 var scanCooldown  = false;
-var qrScanner    = null;
+var videoStream   = null;
+var animFrameId   = null;
 
 // ── Storage ───────────────────────────────────────────
 function loadMembers() {
@@ -135,40 +136,72 @@ function toggleScanner() {
 }
 
 function startScanner() {
-  if (typeof Html5Qrcode === 'undefined') {
-    showToast('Librería de escáner no disponible. Verifica tu conexión.');
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showScanResult('error', 'Cámara no disponible',
+      'Tu navegador no soporta acceso a la cámara. Usa Chrome o Safari y asegúrate de estar en HTTPS.');
     return;
   }
 
-  var box = document.getElementById('qr-reader');
-  box.innerHTML = '';
-  qrScanner = new Html5Qrcode('qr-reader');
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(function(stream) {
+      videoStream = stream;
+      var video = document.getElementById('scanner-video');
+      video.srcObject = stream;
+      video.play();
+      scannerActive = true;
 
-  qrScanner.start(
-    { facingMode: 'environment' },
-    { fps: 10, qrbox: { width: 240, height: 240 } },
-    onScanSuccess,
-    function() {}
-  ).then(function() {
-    scannerActive = true;
-    var btn = document.getElementById('scanner-btn');
-    btn.textContent = 'Detener cámara';
-    btn.className = 'btn btn-outline';
-  }).catch(function(err) {
-    showToast('No se pudo acceder a la cámara. Revisa los permisos.');
-    console.error(err);
-  });
+      var btn = document.getElementById('scanner-btn');
+      btn.textContent = 'Detener cámara';
+      btn.className = 'btn btn-outline';
+
+      animFrameId = requestAnimationFrame(scanLoop);
+    })
+    .catch(function(err) {
+      var msg = 'Revisa que hayas dado permiso de cámara al navegador.';
+      if (err.name === 'NotAllowedError')  msg = 'Permiso de cámara denegado. Acéptalo cuando el navegador lo pida.';
+      if (err.name === 'NotFoundError')    msg = 'No se encontró ninguna cámara en este dispositivo.';
+      if (err.name === 'NotReadableError') msg = 'La cámara está siendo usada por otra aplicación.';
+      showScanResult('error', 'Error al abrir la cámara', msg);
+    });
+}
+
+function scanLoop() {
+  if (!scannerActive) return;
+
+  var video  = document.getElementById('scanner-video');
+  var canvas = document.getElementById('scanner-canvas');
+
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    if (typeof jsQR !== 'undefined') {
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var code = jsQR(imageData.data, imageData.width, imageData.height,
+                      { inversionAttempts: 'dontInvert' });
+      if (code && !scanCooldown) {
+        onScanSuccess(code.data);
+      }
+    }
+  }
+
+  animFrameId = requestAnimationFrame(scanLoop);
 }
 
 function stopScanner() {
-  if (!qrScanner || !scannerActive) return;
-  qrScanner.stop().then(function() {
-    qrScanner.clear();
-    scannerActive = false;
-    var btn = document.getElementById('scanner-btn');
-    btn.textContent = 'Iniciar cámara';
-    btn.className = 'btn btn-primary';
-  }).catch(function() {});
+  scannerActive = false;
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  if (videoStream) {
+    videoStream.getTracks().forEach(function(t) { t.stop(); });
+    videoStream = null;
+  }
+  var video = document.getElementById('scanner-video');
+  if (video) { video.srcObject = null; }
+  var btn = document.getElementById('scanner-btn');
+  btn.textContent = 'Iniciar cámara';
+  btn.className = 'btn btn-primary';
 }
 
 function onScanSuccess(text) {

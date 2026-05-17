@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin – Padel Park Gran Jardín</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script src="js/admin.js" defer></script>
 </head>
 <body class="admin-body">
@@ -83,7 +83,11 @@
 
         <div id="scan-result" class="scan-result hidden"></div>
 
-        <div id="qr-reader" class="qr-reader-box"></div>
+        <div id="qr-reader-box" class="qr-reader-box">
+          <video id="scanner-video" playsinline muted
+                 style="width:100%; display:block; border-radius:14px;"></video>
+          <canvas id="scanner-canvas" style="display:none;"></canvas>
+        </div>
 
         <button id="scanner-btn" class="btn btn-primary" onclick="toggleScanner()"
                 style="width:100%; max-width:360px; margin-top:1rem;">
