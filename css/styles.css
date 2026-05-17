@@ -182,163 +182,130 @@ html, body {
 .card-view-title { font-size: 1.6rem; font-weight: 700; text-align: center; }
 .card-view-subtitle { color: var(--text-muted); font-size: .95rem; text-align: center; }
 
-/* ── Loyalty card ───────────────────────────────────── */
+/* ── Loyalty card (vertical wallet style) ───────────── */
 .loyalty-card {
-  position: relative;
-  width: var(--card-w);
-  height: var(--card-h);
-  border-radius: var(--radius);
+  width: 300px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, var(--card-from, #dbeafe), var(--card-to, #93c5fd));
+  box-shadow: 0 24px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.06);
   overflow: hidden;
-  box-shadow:
-    0 24px 60px rgba(0,0,0,.7),
-    0 0 0 1px rgba(128,224,0,.2),
-    inset 0 1px 0 rgba(255,255,255,.1);
   flex-shrink: 0;
-}
-
-.card-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #0a1540 0%, #0d1b4b 45%, #111f55 100%);
-  z-index: 0;
-}
-.card-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 90% 10%, rgba(128,224,0,.12) 0%, transparent 55%),
-    radial-gradient(ellipse at 5% 90%, rgba(30,45,107,.6) 0%, transparent 50%);
-}
-
-/* Decorative arc on card (echoing the logo arc) */
-.card-bg::before {
-  content: '';
-  position: absolute;
-  top: -30px;
-  left: -20px;
-  right: -20px;
-  height: 90px;
-  border-radius: 50%;
-  border: 2px solid rgba(128,224,0,.2);
-  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 /* Header */
-.card-header {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .65rem .9rem .4rem;
-  border-bottom: 1px solid rgba(128,224,0,.15);
-}
-.card-logo {
-  height: 26px;
-  width: auto;
-  object-fit: contain;
-}
-.card-brand {
-  font-size: .75rem;
-  font-weight: 800;
-  letter-spacing: .16em;
-  color: var(--white);
-  flex: 1;
-}
-.card-brand span { color: var(--lime); }
-.card-label-socio {
-  font-size: .56rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  color: var(--lime);
-  opacity: .7;
-  text-transform: uppercase;
-}
-
-/* Body */
-.card-body {
-  position: relative;
-  z-index: 1;
+.lc-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: .7rem .9rem;
-  height: calc(100% - 70px);
+  padding: 16px 16px 10px;
+}
+.lc-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.lc-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+.lc-brand {
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+  color: var(--card-text, #1e3a8a);
+  line-height: 1;
+}
+.lc-subbrand {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--card-text, #1e3a8a);
+  opacity: .65;
+  font-style: italic;
+  margin-top: 2px;
+}
+.lc-num {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--card-accent, #1d4ed8);
+  letter-spacing: .06em;
+  font-family: monospace;
 }
 
-.card-info {
+/* Stamp grid */
+.lc-stamps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.45);
+  margin: 0 12px;
+  border-radius: 14px;
+}
+.stamp-svg {
+  width: 36px;
+  height: 36px;
+}
+.stamp-svg.filled { color: var(--card-accent, #1d4ed8); }
+.stamp-svg.faded  { color: var(--card-accent, #1d4ed8); opacity: .22; }
+
+/* Info fields */
+.lc-info {
   display: flex;
   flex-direction: column;
-  gap: .45rem;
-  flex: 1;
+  gap: 8px;
+  padding: 12px 16px 10px;
 }
-.card-field { display: flex; flex-direction: column; gap: .05rem; }
-.field-label {
-  font-size: .52rem;
+.lc-field { display: flex; flex-direction: column; gap: 1px; }
+.lc-label {
+  font-size: .58rem;
   font-weight: 700;
-  letter-spacing: .12em;
-  color: var(--lime);
-  opacity: .75;
+  letter-spacing: .1em;
+  color: var(--card-accent, #1d4ed8);
   text-transform: uppercase;
 }
-.field-value {
-  font-size: .82rem;
-  font-weight: 600;
-  color: var(--white);
+.lc-value {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--card-text, #1e3a8a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
-}
-.field-id {
-  font-size: .95rem;
-  font-weight: 800;
-  color: var(--lime);
-  letter-spacing: .06em;
 }
 
-/* QR */
-.card-qr {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
+/* QR box */
+.lc-qr-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,.65);
+  margin: 0 12px 14px;
+  border-radius: 14px;
+  padding: 14px 14px 10px;
+}
+.lc-qr {
+  width: 130px;
+  height: 130px;
   background: #fff;
-  border-radius: 6px;
-  padding: 4px;
+  border-radius: 8px;
+  padding: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,.5), 0 0 0 2px rgba(128,224,0,.2);
 }
-.card-qr canvas,
-.card-qr img { width: 100% !important; height: 100% !important; }
-
-/* Footer */
-.card-footer {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .4rem .9rem;
-  border-top: 1px solid rgba(128,224,0,.1);
-}
-.card-chip {
-  display: block;
-  width: 22px;
-  height: 16px;
-  border-radius: 3px;
-  background: linear-gradient(135deg, #5aab00, #80e000, #5aab00);
-  box-shadow: 0 1px 4px rgba(0,0,0,.4);
-}
-.card-footer-text {
-  font-size: .58rem;
-  color: rgba(255,255,255,.3);
-  letter-spacing: .06em;
+.lc-qr canvas,
+.lc-qr img { width: 120px !important; height: 120px !important; display: block; }
+.lc-qr-label {
+  font-size: .65rem;
+  font-weight: 600;
+  color: var(--card-text, #1e3a8a);
+  opacity: .6;
+  letter-spacing: .04em;
+  text-align: center;
 }
 
 /* ── Card actions ───────────────────────────────────── */
@@ -348,7 +315,7 @@ html, body {
   align-items: center;
   gap: .75rem;
   width: 100%;
-  max-width: var(--card-w);
+  max-width: 300px;
 }
 .screenshot-hint {
   background: rgba(128,224,0,.07);
