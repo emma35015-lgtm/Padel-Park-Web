@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Padel Park Gran Jardín – Tarjeta de Socio</title>
   <link rel="stylesheet" href="css/styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="js/app.js" defer></script>
 </head>
 <body>
+
   <!-- ─── LANDING ───────────────────────────────────── -->
   <section id="landing" class="section active">
     <div class="hero">
       <div class="hero-logo">
-        <!-- Use real PNG logo if provided, fall back to SVG placeholder -->
-        <img src="assets/logo.png" alt="Padel Park Gran Jardín" id="hero-logo-img"
+        <img src="assets/logo.png" alt="Padel Park Gran Jardín"
              onerror="this.src='assets/logo.svg'; this.onerror=null;" />
-
       </div>
       <p class="hero-tagline">Tu club, tu tarjeta, tu ventaja.</p>
       <button class="btn btn-primary btn-lg" onclick="showSection('register')">
@@ -31,16 +31,17 @@
       <button class="btn-back" onclick="showSection('landing')">← Volver</button>
       <h2 class="form-title">Registro de Socio</h2>
       <p class="form-subtitle">Completa tus datos y genera tu tarjeta.</p>
-
       <form id="register-form" onsubmit="handleRegister(event)">
         <div class="form-group">
           <label for="name">Nombre completo *</label>
-          <input type="text" id="name" name="name" placeholder="Ej. María García López"
+          <input type="text" id="name" name="name"
+                 placeholder="Ej. María García López"
                  required maxlength="60" autocomplete="name" />
         </div>
         <div class="form-group">
           <label for="phone">Teléfono / WhatsApp *</label>
-          <input type="tel" id="phone" name="phone" placeholder="Ej. 612 345 678"
+          <input type="tel" id="phone" name="phone"
+                 placeholder="Ej. 612 345 678"
                  required maxlength="20" autocomplete="tel" />
         </div>
         <button type="submit" class="btn btn-primary btn-block">
@@ -54,54 +55,69 @@
   <section id="card-view" class="section">
     <div class="card-view-container">
       <h2 class="card-view-title">¡Tu tarjeta está lista!</h2>
-      <p class="card-view-subtitle">Toma una captura de pantalla para guardarla.</p>
+      <p class="card-view-subtitle">Descárgala o toma una captura de pantalla.</p>
 
-      <!-- Tarjeta visual -->
+      <!-- Tarjeta vertical estilo wallet -->
       <div class="loyalty-card" id="loyalty-card">
-        <div class="card-bg"></div>
 
-        <div class="card-header">
-          <img src="assets/logo.png" alt="Padel Park" class="card-logo"
-               onerror="this.src='assets/logo.svg'" />
-          <span class="card-brand">PADEL PARK</span>
-          <span class="card-label-socio">TARJETA DE SOCIO</span>
-        </div>
-
-        <div class="card-body">
-          <div class="card-info">
-            <div class="card-field">
-              <span class="field-label">NOMBRE</span>
-              <span class="field-value" id="card-name">—</span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">TELÉFONO</span>
-              <span class="field-value" id="card-phone">—</span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">N.º SOCIO</span>
-              <span class="field-value field-id" id="card-id">—</span>
-            </div>
-            <div class="card-field">
-              <span class="field-label">MIEMBRO DESDE</span>
-              <span class="field-value" id="card-date">—</span>
+        <!-- Header: logo + brand + nº socio -->
+        <div class="lc-header">
+          <div class="lc-brand-row">
+            <img src="assets/logo.png" crossorigin="anonymous" class="lc-logo"
+                 onerror="this.src='assets/logo.svg'; this.onerror=null;" />
+            <div>
+              <div class="lc-brand">PADEL PARK</div>
+              <div class="lc-subbrand">Gran Jardín</div>
             </div>
           </div>
+          <span class="lc-num" id="card-id">—</span>
+        </div>
 
-          <div class="card-qr">
-            <div id="qr-code"></div>
+        <!-- Grid de iconos decorativos (estilo sellos) -->
+        <div class="lc-stamps">
+          <svg class="stamp-svg filled"  viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg filled"  viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg filled"  viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg filled"  viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg filled"  viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.7)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg faded"   viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg faded"   viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg faded"   viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg faded"   viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+          <svg class="stamp-svg faded"   viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="currentColor"/><path d="M7 13 Q18 20 29 13" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M7 23 Q18 16 29 23" stroke="rgba(255,255,255,.5)" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+
+        <!-- Datos del socio -->
+        <div class="lc-info">
+          <div class="lc-field">
+            <span class="lc-label">NOMBRE</span>
+            <span class="lc-value" id="card-name">—</span>
+          </div>
+          <div class="lc-field">
+            <span class="lc-label">TELÉFONO</span>
+            <span class="lc-value" id="card-phone">—</span>
+          </div>
+          <div class="lc-field">
+            <span class="lc-label">MIEMBRO DESDE</span>
+            <span class="lc-value" id="card-date">—</span>
           </div>
         </div>
 
-        <div class="card-footer">
-          <span class="card-chip"></span>
-          <span class="card-footer-text">Presenta esta tarjeta en recepción</span>
+        <!-- QR -->
+        <div class="lc-qr-box">
+          <div class="lc-qr" id="qr-code"></div>
+          <p class="lc-qr-label">Padel Park Gran Jardín</p>
         </div>
-      </div>
+
+      </div><!-- fin .loyalty-card -->
 
       <!-- Acciones -->
       <div class="card-actions">
+        <button class="btn btn-primary btn-block" onclick="downloadCard()" id="download-btn">
+          ↓ Descargar tarjeta
+        </button>
         <p class="screenshot-hint">
-          📸 Haz una captura de pantalla ahora para guardar tu tarjeta.
+          📸 O toma una captura de pantalla para guardarla.
         </p>
         <button class="btn btn-secondary" onclick="showSection('register')">
           Registrar otro socio
@@ -112,5 +128,6 @@
       </div>
     </div>
   </section>
+
 </body>
 </html>
