@@ -236,16 +236,20 @@ function onScanSuccess(text) {
   if (scanCooldown) return;
   setCooldown(3000);
 
-  var memberId = parseIdFromQR(text);
-  if (!memberId) {
+  var parsed = parseQR(text);
+  if (!parsed) {
     showScanResult('error', 'QR no reconocido', 'Este código no pertenece a Padel Park Gran Jardín.');
     return;
   }
 
-  var member = findMember(memberId);
+  // Register member on first scan if not yet in the system
+  var member  = findMember(parsed.id);
+  var isNew   = false;
   if (!member) {
-    showScanResult('error', 'Socio no encontrado', 'ID ' + memberId + ' no está en el sistema.');
-    return;
+    member = { id: parsed.id, name: parsed.name, phone: parsed.phone, date: parsed.regDate };
+    allMembers.push(member);
+    localStorage.setItem(MEMBERS_KEY, JSON.stringify(allMembers));
+    isNew = true;
   }
 
   var visit = {
@@ -262,7 +266,13 @@ function onScanSuccess(text) {
   renderMembersTable(allMembers);
 
   var totalVisits = countVisits(member.id);
-  if (totalVisits > 0 && totalVisits % 5 === 0) {
+
+  if (isNew) {
+    showScanResult('success',
+      '✓ ¡Nuevo socio registrado!',
+      member.name + ' (' + member.id + ')\nPrimera visita: ' + formatDate(visit.date) + ' — ' + visit.time
+    );
+  } else if (totalVisits > 0 && totalVisits % 5 === 0) {
     showScanResult('promo',
       '🎉 ¡APLICA PROMOCIÓN!',
       member.name + ' lleva ' + totalVisits + ' visitas.\nAplica descuento o beneficio especial.'
@@ -280,15 +290,29 @@ function setCooldown(ms) {
   setTimeout(function() { scanCooldown = false; }, ms);
 }
 
-function parseIdFromQR(text) {
-  var lines = text.split('\n');
+// Parse all member data from QR text
+function parseQR(text) {
+  if (text.indexOf('PADEL PARK') === -1) return null;
+  var lines  = text.split('\n');
+  var result = { id: null, name: null, phone: null, regDate: todayISO() };
+
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i].trim();
-    if (line.indexOf('Socio: ') === 0) return line.replace('Socio: ', '').trim();
-    var m = line.match(/PP-\d{6}/);
-    if (m) return m[0];
+    if (line.indexOf('Socio: ') === 0)  result.id      = line.replace('Socio: ', '').trim();
+    if (line.indexOf('Nombre: ') === 0) result.name    = line.replace('Nombre: ', '').trim();
+    if (line.indexOf('Tel: ') === 0)    result.phone   = line.replace('Tel: ', '').trim();
+    if (line.indexOf('Desde: ') === 0)  result.regDate = ddmmToISO(line.replace('Desde: ', '').trim());
   }
-  return null;
+
+  if (!result.id || !result.name) return null;
+  return result;
+}
+
+// Convert DD/MM/YYYY → YYYY-MM-DD
+function ddmmToISO(str) {
+  var p = str.split('/');
+  if (p.length !== 3) return todayISO();
+  return p[2] + '-' + p[1] + '-' + p[0];
 }
 
 function findMember(id) {

@@ -28,11 +28,9 @@ function saveMember(member) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
 }
 
-// ── ID generator ─────────────────────────────────────
+// ── ID generator (random, no central counter needed) ──
 function generateId() {
-  var members = loadMembers();
-  var n = String(members.length + 1);
-  while (n.length < 6) { n = '0' + n; }
+  var n = String(Math.floor(Math.random() * 900000) + 100000);
   return 'PP-' + n;
 }
 
@@ -151,7 +149,7 @@ function handleRegister(event) {
   if (!name || !phone) return;
 
   var member = { id: generateId(), name: name, phone: phone, date: todayISO() };
-  saveMember(member);
+  // No guardamos aquí — el registro ocurre cuando admin escanea el QR por primera vez
 
   showSection('card-view');
   renderCard(member);
