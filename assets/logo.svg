@@ -1,20 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="400" height="260">
-  <!-- Background -->
-  <rect width="400" height="260" fill="#0d1b4b" rx="16"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" width="520" height="300">
+  <!-- Transparent background — will inherit page navy blue -->
 
-  <!-- Green arc (ball trajectory) -->
-  <path d="M 50 175 Q 200 30 360 100" stroke="#80e000" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Green arc (ball trajectory) — thick on the right, thin on the left -->
+  <path d="M 72 155 Q 280 -10 490 90"
+        stroke="#80e000" stroke-width="18" fill="none"
+        stroke-linecap="round"
+        stroke-dasharray="none"
+        pathLength="100"/>
 
-  <!-- Padel ball dot on the 'P' -->
-  <circle cx="52" cy="175" r="14" fill="#80e000"/>
-  <path d="M 46 169 Q 52 175 46 181" stroke="#0d1b4b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M 58 169 Q 52 175 58 181" stroke="#0d1b4b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Thin trailing line from ball -->
+  <path d="M 72 155 Q 100 150 130 148"
+        stroke="#80e000" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 
-  <!-- PADEL PARK text -->
-  <text x="200" y="185" text-anchor="middle" font-family="Arial Black, Arial, sans-serif"
-        font-weight="900" font-size="68" fill="#ffffff" letter-spacing="4">PADEL PARK</text>
+  <!-- Padel ball -->
+  <circle cx="55" cy="158" r="22" fill="#80e000"/>
+  <!-- Ball seam lines -->
+  <path d="M 42 148 Q 55 158 42 168" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 68 148 Q 55 158 68 168" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
 
-  <!-- Gran Jardín subtitle -->
-  <text x="200" y="222" text-anchor="middle" font-family="Georgia, serif"
-        font-style="italic" font-size="28" fill="#80e000" letter-spacing="1">Gran Jardín</text>
+  <!-- PADEL PARK — white bold text, wide letter-spacing -->
+  <text x="258" y="220"
+        text-anchor="middle"
+        font-family="'Arial Black', 'Impact', 'Arial', sans-serif"
+        font-weight="900"
+        font-size="100"
+        fill="white"
+        letter-spacing="8">PADEL PARK</text>
+
+  <!-- Gran Jardín — lime green script, indented left to match original -->
+  <text x="190" y="275"
+        text-anchor="start"
+        font-family="'Georgia', 'Times New Roman', serif"
+        font-style="italic"
+        font-size="42"
+        fill="#80e000"
+        letter-spacing="2">Gran Jardín</text>
 </svg>

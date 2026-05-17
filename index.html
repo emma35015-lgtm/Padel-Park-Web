@@ -13,8 +13,9 @@
   <section id="landing" class="section active">
     <div class="hero">
       <div class="hero-logo">
+        <!-- Use real PNG logo if provided, fall back to SVG placeholder -->
         <img src="assets/logo.png" alt="Padel Park Gran Jardín" id="hero-logo-img"
-             onerror="this.src='assets/logo.svg'" />
+             onerror="this.src='assets/logo.svg'; this.onerror=null;" />
 
       </div>
       <p class="hero-tagline">Tu club, tu tarjeta, tu ventaja.</p>
